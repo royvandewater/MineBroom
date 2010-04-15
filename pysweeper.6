@@ -1,0 +1,77 @@
+.TH PYSWEEPER 6 "May 30, 2002"
+.SH NAME
+Pysweeper - an implementation of the Minesweeper game
+.SH SYNOPSIS
+pysweeper [\fB-d\fR,\fB--debug\fR]
+[\fB-r\fR \fIrows\fR,\fB--rows\fR=\fIrows\fR]
+[\fB-c\fR \fIcolumns\fR,\fB--cols\fR=\fIcolumns\fR,
+\fB--columns\fR=\fIcolumns\fR]
+[\fB-m\fR \fImines\fR,\fB--mines\fR=\fImines\fR]
+[\fB--dir\fR=\fIdirectory\fR]
+.br
+pysweeper [\fB-h\fR,\fB--help\fR|\fB-v\fR,\fB--version\fR]
+.SH DESCRIPTION
+Pysweeper is yet another implementation of the Minesweeper game.  The goal
+of the game is to locate and flag all of the mines on the playing field as
+quickly as possible without opening any of them.
+.SH OPTIONS
+.IP "\fB-r\fR \fIrows\fR, \fB--rows\fR=\fIrows\fR"
+Set the number of rows of the playing field.
+.IP "\fB-c\fR \fIcolumns\fR, \fB--cols\fR=\fIcolumns\fR, \
+\fB--columns\fR=\fIcolumns\fR"
+Set the number of columns of the playing field.
+.IP "\fB-m\fR \fImines\fR, \fB--mines\fR=\fImines\fR"
+Set the number of mines placed within the playing field.
+.IP "\fB--dir\fR=\fIdirectory\fR"
+Add a directory for use when seeking external data, such as graphics
+files.  The directories will be searched in the order opposite than they
+were added.
+.IP "\fB-d\fR, \fB--debug\fR"
+Enable debugging.  This will allow retrieval of the current game state, and
+provide more verbose error messages when possible.
+.IP "\fB-h\fR, \fB--help\fR"
+Display a brief help text.
+.IP "\fB-v\fR, \fB--version\fR"
+Display version and copyright information.
+.SH "RULES OF THE GAME"
+At the beginning of the game, the playing field will be a rectangular
+collection of blank tiles.  Tiles can be either opened or flagged.  If a
+tile containing a mine is opened, the game is over, and the locations of
+all the mines will be revealed.  Otherwise, the tile will display a number;
+this number indicates the number of mines in the tiles adjacent to the
+opened tile.  If an open tile is blank, there are no mines adjacent to it.
+.PP
+The first tile will never be a mine.
+.PP
+The game is won when all tiles containing mines are flagged, and all other
+tiles have been opened.
+.PP
+The time taken to clear the field is recorded.  Time begins when the first
+tile is opened.
+.SH "PLAYING THE GAME"
+Tiles are opened by clicking on them with the first mouse button, and
+flagged by clicking on them with the third mouse button.  Opened tiles
+cannot be flagged, and flagged tiles cannot be opened.  A flagged tile can
+have its flag removed by clicking on it with the third mouse button.
+.PP
+The second mouse button can be used to open several tiles at once.  Click an
+open tile with the third mouse button, and if the number of adjacent mines
+is equal to the number of adjacent flagged tiles, then all adjacent,
+unflagged tiles will be opened.
+.PP
+If a tile which has no adjacent mines is opened, all adjacent tiles will
+automatically be opened as a courtesy to the player.
+.PP
+.SH "OTHER CONTROLS"
+A new game, with different mine placement, can be started at any time,
+either by clicking the "New Game" button at the top of the game window with
+the first mouse button, or by pressing the 'n' or 'r' keys.
+.PP
+The game can be quit at any time, either by clicking the "Quit" button at
+the top of the game window with the first mouse button, or by pressing
+the 'q' key.
+.PP
+If debugging has been enabled (with the \fB-d\fR or \fB--debug\fR options),
+debugging information can be obtained by pressing the 'd' key.
+.SH "AUTHOR"
+Brett Smith <bcsmit1@engr.uky.edu> is the primary author of Pysweeper.
