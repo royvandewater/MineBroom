@@ -31,10 +31,19 @@ class Sweeper:
                 # If mine is greater than 0, display the number of adjacent mines
                 if value > 0:
                     # add button image
-                    image = gtk.Image()
-                    image.set_from_file("icons/flag.svg")
-                    image.show()
+                    image = self.square_value_image(value)
                     button.add(image)
+
+    def square_value_image(self, value):
+        """
+        Loads the svg file corresponding to the value number
+        """
+        image = gtk.Image()
+        image_files = ("one","two","three","four","five","six","seven","eight","nine")
+        filename = "icons/{0}.svg".format(image_files[value-1])
+        image.set_from_file(filename)
+        image.show()
+        return image
 
     def delete_event(self, widget, event, data=None):
         """
