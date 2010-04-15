@@ -53,7 +53,7 @@ class Field:
                 raise ValueError, "all arguments must be > 0"
         if mines >= (rows * cols):
             raise ValueError, "mines must be < (rows * cols)"
-                
+
         self.rows = rows
         self.cols = cols
         self.mines = mines
