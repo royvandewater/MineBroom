@@ -11,11 +11,11 @@ import gtk
 import pango
 
 class Sweeper:
-    def uncover(self, widget, event, data=None):
+    def uncover(self, widget, row, col):
         """
         Checks to see if the clicked square was a mine
         """
-        uncovered_squares = self.minefield.open(event[0], event[1])
+        uncovered_squares = self.minefield.open(row, col)
         for square in uncovered_squares:
             # unpack square ((2, 1), 1) to coordinates and values
             coords,value = square
@@ -33,6 +33,18 @@ class Sweeper:
                     # add button image
                     image = self.square_value_image(value)
                     button.add(image)
+
+    def flag_square(widget, row, col)
+        """
+        Marks the square as a known mine
+        """
+        pass
+
+    def square_clicked_event(self, widget, event, data=None):
+        if event.button == 1:
+            self.uncover(widget, data[0], data[1])
+        elif event.button == 3:
+            self.flag_square(widget, data[0], data[1])
 
     def square_value_image(self, value):
         """
@@ -118,7 +130,7 @@ class Sweeper:
                 button = gtk.Button()
 
                 # Add a callback onclick function for the button
-                button.connect("clicked", self.uncover, (row,col))
+                button.connect("button_press_event", self.square_clicked_event, (row,col))
 
                 # Attach the button to the appropriate place in the minebox
                 self.minebox.attach(button, col, 1+col, row, 1+row)
