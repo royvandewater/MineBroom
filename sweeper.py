@@ -43,6 +43,10 @@ class Sweeper:
                     image = self.square_value_image(value)
                     button.add(image)
 
+        # Check to see if the game was won, output to console if so
+        if self.minefield.won():
+            print("A winner is you")
+
     def flag_square(self, widget, row, col):
         """
         Marks the square as a known mine
