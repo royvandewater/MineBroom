@@ -11,108 +11,6 @@ import gtk
 import pango
 
 class Sweeper:
-    def uncover(self, widget, row, col):
-        """
-        Checks to see if the clicked square was a mine
-        """
-        uncovered_squares = self.minefield.open(row, col)
-
-        if not uncovered_squares:
-            uncovered_squares = self.minefield.open_adjacent(row, col)
-
-        for square in uncovered_squares:
-            # unpack square ((2, 1), 1) to coordinates and values
-            coords,value = square
-            # If value is negative, user clicked on a mine
-            if value < 0:
-                print("Mine, you are dead")
-
-                button = self.minelist[coords[0]][coords[1]]
-                image = self.get_svg_from_file("bang")
-                button.add(image)
-
-                self.display_mines()
-            else:
-                button = self.minelist[coords[0]][coords[1]]
-                # Disable the button
-                # button.set_sensitive(False)
-                button.set_relief(gtk.RELIEF_NONE)
-                # If mine is greater than 0, display the number of adjacent mines
-                if value > 0:
-                    # add button image
-                    image = self.square_value_image(value)
-                    button.add(image)
-
-        # Check to see if the game was won, output to console if so
-        if self.minefield.won():
-            print("A winner is you")
-
-    def flag_square(self, widget, row, col):
-        """
-        Marks the square as a known mine
-        """
-        flagged = self.minefield.flag(row, col)
-
-        button = self.minelist[row][col]
-        flag_image = self.flaglist[row][col]
-
-        if(flagged == 1):
-            button.add(flag_image)
-        elif(flagged == 0):
-            button.remove(flag_image)
-
-    def display_mines(self):
-        """
-        Displays all of the mines in the minefield, marking the one
-        denoted by row and col with a red background (as the one that
-        was clicked to lose the game
-        """
-
-        mines = self.minefield.get_diff()
-
-        for mine in mines:
-            coords,value = mine
-
-            if value == 1:
-                button = self.minelist[coords[0]][coords[1]]
-                image = self.get_svg_from_file("mine")
-                button.add(image)
-
-    def get_svg_from_file(self, filename):
-        image = gtk.Image()
-        image.set_from_file("icons/{0}.svg".format(filename))
-        image.show()
-        return image
-
-    def square_clicked_event(self, widget, event, data=None):
-        if event.button == 1:
-            self.uncover(widget, data[0], data[1])
-        elif event.button == 3:
-            self.flag_square(widget, data[0], data[1])
-
-    def square_value_image(self, value):
-        """
-        Loads the svg file corresponding to the value number
-        """
-        image = gtk.Image()
-        image_files = ("one","two","three","four","five","six","seven","eight","nine")
-        filename = "icons/{0}.svg".format(image_files[value-1])
-        image.set_from_file(filename)
-        image.show()
-        return image
-
-    def delete_event(self, widget, event, data=None):
-        """
-        Can be used to prevent calling destroy, allowing for confirmation prompts
-        """
-        return False
-
-    def destroy(self, widget, data=None):
-        """
-        Close the window and terminate the application
-        """
-        gtk.main_quit()
-
     def __init__(self, row_count, column_count, mine_count):
         """
         Setup the gtk window
@@ -185,9 +83,7 @@ class Sweeper:
                 self.minelist[row].insert(col, button)
 
                 # Add a flag image
-                flag_image = gtk.Image()
-                flag_image.set_from_file("icons/flag.svg")
-                flag_image.show()
+                flag_image = self.get_svg_from_file("flag")
 
                 # Add the flag image to the flaglist
                 self.flaglist[row].insert(col, flag_image)
@@ -196,8 +92,118 @@ class Sweeper:
                 button.show()
 
 
+    def delete_event(self, widget, event, data=None):
+        """
+        Can be used to prevent calling destroy, allowing for confirmation prompts
+        """
+        return False
+
+
+    def destroy(self, widget, data=None):
+        """
+        Close the window and terminate the application
+        """
+        gtk.main_quit()
+
+
+    def display_mines(self):
+        """
+        Displays all of the mines in the minefield, marking the one
+        denoted by row and col with a red background (as the one that
+        was clicked to lose the game
+        """
+
+        mines = self.minefield.get_diff()
+
+        for mine in mines:
+            coords,value = mine
+
+            if value == 1:
+                button = self.minelist[coords[0]][coords[1]]
+                image = self.get_svg_from_file("mine")
+                button.add(image)
+
+
+    def flag_square(self, widget, row, col):
+        """
+        Marks the square as a known mine
+        """
+        flagged = self.minefield.flag(row, col)
+
+        button = self.minelist[row][col]
+        flag_image = self.flaglist[row][col]
+
+        if(flagged == 1):
+            button.add(flag_image)
+        elif(flagged == 0):
+            button.remove(flag_image)
+
+
+    def get_svg_from_file(self, filename):
+        image = gtk.Image()
+        image.set_from_file("icons/{0}.svg".format(filename))
+        image.show()
+        return image
+
+
     def main(self):
         gtk.main()
+
+
+    def square_clicked_event(self, widget, event, data=None):
+        if event.button == 1:
+            self.uncover(widget, data[0], data[1])
+        elif event.button == 3:
+            self.flag_square(widget, data[0], data[1])
+
+
+    def square_value_image(self, value):
+        """
+        Loads the svg file corresponding to the value number
+        """
+        image = gtk.Image()
+        image_files = ("one","two","three","four","five","six","seven","eight","nine")
+        filename = "icons/{0}.svg".format(image_files[value-1])
+        image.set_from_file(filename)
+        image.show()
+        return image
+
+
+    def uncover(self, widget, row, col):
+        """
+        Checks to see if the clicked square was a mine
+        """
+        uncovered_squares = self.minefield.open(row, col)
+
+        if not uncovered_squares:
+            uncovered_squares = self.minefield.open_adjacent(row, col)
+
+        for square in uncovered_squares:
+            # unpack square ((2, 1), 1) to coordinates and values
+            coords,value = square
+            # If value is negative, user clicked on a mine
+            if value < 0:
+                print("Mine, you are dead")
+
+                button = self.minelist[coords[0]][coords[1]]
+                image = self.get_svg_from_file("bang")
+                button.add(image)
+
+                self.display_mines()
+            else:
+                button = self.minelist[coords[0]][coords[1]]
+                # Disable the button
+                # button.set_sensitive(False)
+                button.set_relief(gtk.RELIEF_NONE)
+                # If mine is greater than 0, display the number of adjacent mines
+                if value > 0:
+                    # add button image
+                    image = self.square_value_image(value)
+                    button.add(image)
+        print self.minefield.serialize()
+        # Check to see if the game was won, output to console if so
+        if self.minefield.won():
+            print("A winner is you")
 
 class Minefield:
     """Provide a playing field for a Minesweeper game.
@@ -271,6 +277,48 @@ class Minefield:
             adjlist.remove(item)
         return adjlist
 
+
+    def flag(self, x, y):
+        """Flag or unflag an unopened tile.
+
+        This function attempts to toggle the flagged status of the tile at
+        the given coordinates, and returns a value indicating the action
+        which occurred.  A return value of -1 indicates that the tile is
+        opened and cannot be flagged; 0 indicates that the tile is unflagged;
+        and 1 indicates that the tile was flagged.
+
+        x and y are the x and y coordinates of the tile to be flagged,
+        respectively.
+        """
+        if self.board[x][y][1] == -1:
+            return -1
+        elif self.board[x][y][1] == 0:
+            self.board[x][y] = (self.board[x][y][0], 1)
+            self.flags = self.flags + 1
+            return 1
+        else:
+            self.board[x][y] = (self.board[x][y][0], 0)
+            self.flags = self.flags - 1
+            return 0
+
+    def get_diff(self):
+        """
+        Return a list providing mine locations.
+        This function provides a list of 2-tuples.  The first value of each
+        2-tuple is a 2-tuple, providing the x and y coordinates of a tile;
+        the second value of the 2-tuple is either 1 or -1.  1 indicates that
+        a mine is at those coordinates; -1 indicates that a mine is not at
+        those coordinates, but a flag was placed there.
+        """
+        diff = []
+        for y in range(self.rows):
+            for x in range(self.cols):
+                if self.board[x][y] == (-2, 1):
+                    diff.extend([((x, y), -1)])
+                elif ((self.board[x][y][0] == -1) and
+                      (self.board[x][y][1] == 0)):
+                    diff.extend([((x, y), 1)])
+        return diff
 
     def open(self, coordlist, y = None):
         """Open one or more tiles.
@@ -352,49 +400,6 @@ class Minefield:
             return []
 
 
-    def flag(self, x, y):
-        """Flag or unflag an unopened tile.
-
-        This function attempts to toggle the flagged status of the tile at
-        the given coordinates, and returns a value indicating the action
-        which occurred.  A return value of -1 indicates that the tile is
-        opened and cannot be flagged; 0 indicates that the tile is unflagged;
-        and 1 indicates that the tile was flagged.
-
-        x and y are the x and y coordinates of the tile to be flagged,
-        respectively.
-        """
-        if self.board[x][y][1] == -1:
-            return -1
-        elif self.board[x][y][1] == 0:
-            self.board[x][y] = (self.board[x][y][0], 1)
-            self.flags = self.flags + 1
-            return 1
-        else:
-            self.board[x][y] = (self.board[x][y][0], 0)
-            self.flags = self.flags - 1
-            return 0
-
-    def get_diff(self):
-        """
-        Return a list providing mine locations.
-        This function provides a list of 2-tuples.  The first value of each
-        2-tuple is a 2-tuple, providing the x and y coordinates of a tile;
-        the second value of the 2-tuple is either 1 or -1.  1 indicates that
-        a mine is at those coordinates; -1 indicates that a mine is not at
-        those coordinates, but a flag was placed there.
-        """
-        diff = []
-        for y in range(self.rows):
-            for x in range(self.cols):
-                if self.board[x][y] == (-2, 1):
-                    diff.extend([((x, y), -1)])
-                elif ((self.board[x][y][0] == -1) and
-                      (self.board[x][y][1] == 0)):
-                    diff.extend([((x, y), 1)])
-        return diff
-
-
     def playtime(self):
         """Return a string representing the current play time.
 
@@ -420,6 +425,29 @@ class Minefield:
         else:
             return '%i:%i' % (mins, secs)
 
+    def serialize(self):
+        """Returns a normalized, serialized form of the game board.
+
+        The serializer is only intended to be used for input into a particular
+        GRINGO application
+        """
+        squares = list()
+        for row in enumerate(self.board):
+            for col in enumerate(self.board[row[0]]):
+                square = col[1]
+                if square[1] == -1:
+                    # This is a safe square
+                    squares.append("safe({0},{1},{2})".format(row[0],col[0],square[0]))
+                elif square[1] == 1:
+                    # This is a known mine
+                    squares.append("mine({0},{1})".format(row[0],col[0]))
+
+        return_string = ""
+        for square in squares:
+            return_string += square + "\n"
+
+        # return everything except the last linebreak
+        return return_string[:-1]
 
     def won(self):
         """Indicate whether or not the game has been won.
@@ -429,82 +457,6 @@ class Minefield:
         """
         return ((self.flags == self.mines) and
                 (self.cleared == (self.rows * self.cols) - self.mines))
-
-def main(argv):
-    """ Main method of application """
-    sweeper = Sweeper()
-    sweeper.main()
-
-def show_usage(error = None):
-    """Show usage information, with an error if given, and exit appropriately.
-
-    This function will display a standard, run-of-the-mill usage message,
-    providing rudimentary help with the game's command-line switches.  If an
-    error message is given, it will be printed preceding the rest of the
-    message, and the program will exit with an exit code of 2; otherwise,
-    the program will exit with a code of 0.
-    """
-    if error is not None:
-        print "Error: %s." % error
-    print "Usage: %s [-d] [-r,--rows ROWS]" % sys.argv[0],
-    print "[-c,--cols,--columns COLUMNS] [-m,--mines MINES] [--dir DIRECTORY]"
-    print "  -h,--help:           Display this usage message and exit."
-    print "  -v,--version:        Display the program version and exit."
-    print "  -r,--rows:           Set the number of rows in the playing field."
-    print "  -c,--cols,--columns: Set the number of columns in the playing",
-    print "field."
-    print "  -m,--mines:          Set the number of mines in the playing",
-    print "field."
-    print "  --dir:               Add a directory for finding external data."
-    print "  -d,--debug:          Enable debugging."
-    if error is None:
-        sys.exit(0)
-    else:
-        sys.exit(2)
-
-def set_option(options, name, value, minvalue = 0):
-    """Set a value of a dictionary, with type and bounds checking.
-
-    This function will set a given dictionary key to the given value, if it
-    can be converted to an integer and is above a given value.  If any of
-    the checks fail, the program will abort with an appropriate error
-    message.
-
-    options is the dictionary which contains the key to be set.  name is the
-    name of the dictionary key to be set.  value is the value which will be
-    checked and stored.  minvalue is the minimum value; the variable value
-    must be larger than minvalue to be set.
-    """
-    try:
-        value = int(value)
-    except ValueError:
-        show_usage("Bad argument (%s) for option %s" % (value, name))
-    else:
-        if value > minvalue:
-            options[name] = value
-        else:
-            fail("bad value for option %s (too small)" % name)
-
-def show_version():
-    """
-    Print version and copyright information, and exit normally.
-    """
-    print """
-    sweeper 0.1 -- An implementation of the Minesweeper game in GTK.
-    Copyright 2010 Roy van de Water <support@royvandewater.com>
-    Code based on pysweeper by Brett Smith (Copyright 2002)
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
-    """
-    sys.exit(0)
 
 def get_options():
     """Parse command-line options.
@@ -577,6 +529,82 @@ def init_ui(game_opts):
 
     sweeper.main()
     return sweeper
+
+def main(argv):
+    """ Main method of application """
+    sweeper = Sweeper()
+    sweeper.main()
+
+def set_option(options, name, value, minvalue = 0):
+    """Set a value of a dictionary, with type and bounds checking.
+
+    This function will set a given dictionary key to the given value, if it
+    can be converted to an integer and is above a given value.  If any of
+    the checks fail, the program will abort with an appropriate error
+    message.
+
+    options is the dictionary which contains the key to be set.  name is the
+    name of the dictionary key to be set.  value is the value which will be
+    checked and stored.  minvalue is the minimum value; the variable value
+    must be larger than minvalue to be set.
+    """
+    try:
+        value = int(value)
+    except ValueError:
+        show_usage("Bad argument (%s) for option %s" % (value, name))
+    else:
+        if value > minvalue:
+            options[name] = value
+        else:
+            fail("bad value for option %s (too small)" % name)
+
+def show_usage(error = None):
+    """Show usage information, with an error if given, and exit appropriately.
+
+    This function will display a standard, run-of-the-mill usage message,
+    providing rudimentary help with the game's command-line switches.  If an
+    error message is given, it will be printed preceding the rest of the
+    message, and the program will exit with an exit code of 2; otherwise,
+    the program will exit with a code of 0.
+    """
+    if error is not None:
+        print "Error: %s." % error
+    print "Usage: %s [-d] [-r,--rows ROWS]" % sys.argv[0],
+    print "[-c,--cols,--columns COLUMNS] [-m,--mines MINES] [--dir DIRECTORY]"
+    print "  -h,--help:           Display this usage message and exit."
+    print "  -v,--version:        Display the program version and exit."
+    print "  -r,--rows:           Set the number of rows in the playing field."
+    print "  -c,--cols,--columns: Set the number of columns in the playing",
+    print "field."
+    print "  -m,--mines:          Set the number of mines in the playing",
+    print "field."
+    print "  --dir:               Add a directory for finding external data."
+    print "  -d,--debug:          Enable debugging."
+    if error is None:
+        sys.exit(0)
+    else:
+        sys.exit(2)
+
+def show_version():
+    """
+    Print version and copyright information, and exit normally.
+    """
+    print """
+    sweeper 0.1 -- An implementation of the Minesweeper game in GTK.
+    Copyright 2010 Roy van de Water <support@royvandewater.com>
+    Code based on pysweeper by Brett Smith (Copyright 2002)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
+    """
+    sys.exit(0)
 
 if __name__=="__main__":
     game_opts = get_options()
