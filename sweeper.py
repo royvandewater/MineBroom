@@ -16,13 +16,22 @@ class Sweeper:
         Checks to see if the clicked square was a mine
         """
         uncovered_squares = self.minefield.open(row, col)
+
+        if not uncovered_squares:
+            uncovered_squares = self.minefield.open_adjacent(row, col)
+
         for square in uncovered_squares:
             # unpack square ((2, 1), 1) to coordinates and values
             coords,value = square
             # If value is negative, user clicked on a mine
             if value < 0:
                 print("Mine, you are dead")
-                self.destroy(widget)
+
+                button = self.minelist[coords[0]][coords[1]]
+                image = self.get_svg_from_file("bang")
+                button.add(image)
+
+                self.display_mines()
             else:
                 button = self.minelist[coords[0]][coords[1]]
                 # Disable the button
@@ -34,11 +43,42 @@ class Sweeper:
                     image = self.square_value_image(value)
                     button.add(image)
 
-    def flag_square(widget, row, col)
+    def flag_square(self, widget, row, col):
         """
         Marks the square as a known mine
         """
-        pass
+        flagged = self.minefield.flag(row, col)
+
+        button = self.minelist[row][col]
+        flag_image = self.flaglist[row][col]
+
+        if(flagged == 1):
+            button.add(flag_image)
+        elif(flagged == 0):
+            button.remove(flag_image)
+
+    def display_mines(self):
+        """
+        Displays all of the mines in the minefield, marking the one
+        denoted by row and col with a red background (as the one that
+        was clicked to lose the game
+        """
+
+        mines = self.minefield.get_diff()
+
+        for mine in mines:
+            coords,value = mine
+
+            if value == 1:
+                button = self.minelist[coords[0]][coords[1]]
+                image = self.get_svg_from_file("mine")
+                button.add(image)
+
+    def get_svg_from_file(self, filename):
+        image = gtk.Image()
+        image.set_from_file("icons/{0}.svg".format(filename))
+        image.show()
+        return image
 
     def square_clicked_event(self, widget, event, data=None):
         if event.button == 1:
@@ -114,6 +154,7 @@ class Sweeper:
         self.minebox = gtk.Table(rows=row_count, columns=column_count, homogeneous=True)
         self.minebox.show()
         self.minelist = list()
+        self.flaglist = list()
 
         # Put the minebox in the layout box
         self.layout_box.pack_start(self.minebox, True, True, 0)
@@ -124,6 +165,7 @@ class Sweeper:
         for row in range(row_count):
             # Add a row to the minearray
             self.minelist.insert(row, list())
+            self.flaglist.insert(row, list())
 
             for col in range(column_count):
                 # Create a new button for every square
@@ -137,6 +179,14 @@ class Sweeper:
 
                 # Add the button to the row list
                 self.minelist[row].insert(col, button)
+
+                # Add a flag image
+                flag_image = gtk.Image()
+                flag_image.set_from_file("icons/flag.svg")
+                flag_image.show()
+
+                # Add the flag image to the flaglist
+                self.flaglist[row].insert(col, flag_image)
 
                 # Lastly, display the widget (button)
                 button.show()
@@ -321,10 +371,9 @@ class Minefield:
             self.flags = self.flags - 1
             return 0
 
-
     def get_diff(self):
-        """Return a list providing mine locations.
-
+        """
+        Return a list providing mine locations.
         This function provides a list of 2-tuples.  The first value of each
         2-tuple is a 2-tuple, providing the x and y coordinates of a tile;
         the second value of the 2-tuple is either 1 or -1.  1 indicates that
