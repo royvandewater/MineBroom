@@ -35,11 +35,10 @@ class Sweeper:
         # (windows can only have one widget in them)
         self.layout_box = gtk.VBox(False, 0)
 
-
-        # Put the box into the window
+        # Put the layout box into the window
         self.window.add(self.layout_box)
 
-        # Create a reset box
+        # Create a box to hold the reset button
         self.reset_box = gtk.HBox(False, 0)
         self.reset_box.show()
 
@@ -48,9 +47,10 @@ class Sweeper:
         self.reset_button.show()
         self.reset_box.pack_start(self.reset_button, True, False, 0)
 
-        # Put the reset box in the layout box
-        self.layout_box.pack_start(self.reset_box, False, False, 0)
-
+        # Put the reset box in the layout box 
+        # Commented out as the reset functionality has not yet been
+        # implemented
+        # self.layout_box.pack_start(self.reset_box, False, False, 0)
 
         # Create the minebox container and a minearray for keeping track of the buttons
         self.minebox = gtk.Table(rows=row_count, columns=column_count, homogeneous=True)
@@ -60,9 +60,7 @@ class Sweeper:
 
         # Put the minebox in the layout box
         self.layout_box.pack_start(self.minebox, True, True, 0)
-
         self.layout_box.show()
-        # First add a row for our reset button
 
         for row in range(row_count):
             # Add a row to the minearray
@@ -93,24 +91,29 @@ class Sweeper:
 
 
     def delete_event(self, widget, event, data=None):
-        """
-        Can be used to prevent calling destroy, allowing for confirmation prompts
+        """Called when user attempts to exit the application
+
+        If this returns true, destroy call will be prevented.
+        This allows for confirmation prompts and termination cancellation
         """
         return False
 
 
     def destroy(self, widget, data=None):
-        """
-        Close the window and terminate the application
+        """Close the window
+
+        The application will not terminate, it will resume execution
+        of code written after gtk.main() is called.
         """
         gtk.main_quit()
 
 
     def display_mines(self):
-        """
-        Displays all of the mines in the minefield, marking the one
-        denoted by row and col with a red background (as the one that
-        was clicked to lose the game
+        """Displays all of the mines in the minefield
+
+        The only mine not displayed is the one clicked on to cause this
+        function to be called. It is assumed that that mine's image has
+        already been set.
         """
 
         mines = self.minefield.get_diff()
@@ -125,8 +128,11 @@ class Sweeper:
 
 
     def flag_square(self, widget, row, col):
-        """
-        Marks the square as a known mine
+        """Toggles marking the square as a mine
+
+        The solver uses this data to find new mines. If a safe spot
+        is marked in error, the solver may incorrectly deduce that a
+        mined spot is safe.
         """
         flagged = self.minefield.flag(row, col)
 
@@ -149,29 +155,44 @@ class Sweeper:
     def main(self):
         gtk.main()
 
+    def solve(self):
+        print self.minefield.serialize()
 
     def square_clicked_event(self, widget, event, data=None):
+        """
+        """
         if event.button == 1:
             self.uncover(widget, data[0], data[1])
         elif event.button == 3:
             self.flag_square(widget, data[0], data[1])
 
+        # This is where the solver will interact with the game
+        self.solve()
+
+        # Check to see if the game was won, output to console if so
+        if self.minefield.won():
+            print("A winner is you")
+
 
     def square_value_image(self, value):
+        """Loads the svg file corresponding to the value number
+
+        The svg loader expects a an integer value x where 1 <= x <= 9
         """
-        Loads the svg file corresponding to the value number
-        """
-        image = gtk.Image()
         image_files = ("one","two","three","four","five","six","seven","eight","nine")
-        filename = "icons/{0}.svg".format(image_files[value-1])
-        image.set_from_file(filename)
-        image.show()
-        return image
+        return self.get_svg_from_file(image_files[value-1])
 
 
     def uncover(self, widget, row, col):
-        """
-        Checks to see if the clicked square was a mine
+        """Checks to see if the clicked square was a mine
+
+        The method will automatically update the appropriate squares
+        to display their new status. If the square is safe but adjacent
+        to one or more mines, a number is displayed indicating the number
+        of mines adjacent to it. If there are no adjacent mines, the
+        square will lose its relief but display no number. Lastly, if the
+        square is a mine, the square will show an explosion icon and all
+        mines on the board will be revealed.
         """
         uncovered_squares = self.minefield.open(row, col)
 
@@ -200,10 +221,6 @@ class Sweeper:
                     # add button image
                     image = self.square_value_image(value)
                     button.add(image)
-        print self.minefield.serialize()
-        # Check to see if the game was won, output to console if so
-        if self.minefield.won():
-            print("A winner is you")
 
 class Minefield:
     """Provide a playing field for a Minesweeper game.
