@@ -454,10 +454,10 @@ class Minefield:
                 square = col[1]
                 if square[1] == -1:
                     # This is a safe square
-                    squares.append("safe({0},{1},{2})".format(row[0],col[0],square[0]))
+                    squares.append("safe({0},{1},{2}).".format(row[0],col[0],square[0]))
                 elif square[1] == 1:
                     # This is a known mine
-                    squares.append("mine({0},{1})".format(row[0],col[0]))
+                    squares.append("mine({0},{1}).".format(row[0],col[0]))
 
         return_string = ""
         for square in squares:

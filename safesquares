@@ -1,0 +1,18 @@
+% This solver checks to see what spots are safe
+% The mines checker is called "mines"
+
+% The idea is to return a list of all previously unknown locations
+% That we now know to be safe
+
+% The input is normallized so the value of each known safe square is
+% subtracted by the number of known adjacent mines
+
+% define when something is definately a mine
+% to be a mine, its nescessary (but not sufficent) for all adjacent
+% squares to have a number showing
+
+1{ safe(X,Y) : row(X) : col(Y) }1.
+
+:- not not_a_mine(R1,C1), safe(R1,C1).
+
+:- safe(R1,C1),  
