@@ -4,8 +4,8 @@
 % The idea is to return a list of all previously unknown locations
 % That we now know to be mines
 
-% Try to find one mine
-1{ mine(X,Y) : row(X) : col(Y) }.
+% Try to find mines, m is the max number of remaining mines
+{ mine(X,Y) : row(X) : col(Y) }m.
 
 % define when something is definately a mine
 % A safe square is definately not a mine
@@ -18,7 +18,9 @@ unfree(R1,C1) :- mine(R1,C1), safe(R2,C2,N2), adjacent(R1,C1,R2,C2).
 % one safe square (So if there are no adjacent squares, exclude it
 :- mine(R1,C1), safe(R2,C2,N2), not unfree(R1,C1).
 
-% must be a mine and safe and adjacent
+% There cannot be more mines adjacent to a safesquare than the value indicated
+{ mine(R1,C1), safe(R2,C2,N2), adjacent(R1,C1,R2,C2) }N2.
+
 
 #hide.
 #show mine/2.
