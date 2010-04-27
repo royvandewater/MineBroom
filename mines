@@ -5,21 +5,23 @@
 % That we now know to be mines
 
 % Try to find mines, m is the max number of remaining mines
-{ mine(X,Y) : row(X) : col(Y) }m.
+% { mine(X,Y) : row(X) : col(Y) }m.
 
-% define when something is definately a mine
+% There cannot be more mines adjacent to a safesquare than the value indicated
+
+% choose at most A adjacent mines
+C{ mine(A1,B1) : adjacent(A1,B1,A2,B2) }C :- safe(A2,B2,C).
+
+% define when something is definately not a mine
 % A safe square is definately not a mine
-:- safe(R1, C1, N), mine(R1, C1).
+% :- safe(R1, C1, N), mine(R1, C1).
 
 % A mine is unfree if it is adjacent to at least one safe square
-unfree(R1,C1) :- mine(R1,C1), safe(R2,C2,N2), adjacent(R1,C1,R2,C2).
+% unfree(R1,C1) :- mine(R1,C1), safe(R2,C2,N2), adjacent(R1,C1,R2,C2).
 
 % For us to realize that this is a mine, it has to be adjacent to at least
 % one safe square (So if there are no adjacent squares, exclude it
-:- mine(R1,C1), safe(R2,C2,N2), not unfree(R1,C1).
-
-% There cannot be more mines adjacent to a safesquare than the value indicated
-{ mine(R1,C1), safe(R2,C2,N2), adjacent(R1,C1,R2,C2) }N2.
+% :- mine(R1,C1), safe(R2,C2,N2), not unfree(R1,C1).
 
 
 #hide.
