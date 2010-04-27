@@ -13,6 +13,7 @@ import gtk
 import pango
 
 solve_auto = False
+limit = False
 
 class Sweeper:
     def __init__(self, row_count, column_count, mine_count):
@@ -213,6 +214,8 @@ class Sweeper:
 
         # If board state has changed, rerun the solver
         if boardstate != self.minefield.serialize():
+            if limit:
+                raw_input("Press enter to continue")
             self.solve()
         elif not self.minefield.won():
             print("Help me, I'm stuck!")
@@ -559,9 +562,9 @@ def get_options():
         game_opts['paths'] = [sys.path[0], '.']
 
     try:
-        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:s',
+        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:sl',
                                 ['help', 'rows=', 'columns=', 'cols=', 'dir=',
-                                 'mines=', 'version', 'debug','solve'])[0]
+                                 'mines=', 'version', 'debug','solve','limit'])[0]
     except getopt.error:
         show_usage(sys.exc_info()[1])
 
@@ -580,6 +583,9 @@ def get_options():
         elif option in ('-c', '--cols', '--columns'):
             set_option(game_opts, 'cols', argument)
             set_size = 1
+        elif option in ('-l', '--limit'):
+            global limit
+            limit = True
         elif option in ('-m', '--mines'):
             set_option(game_opts, 'mines', argument)
             set_mines = 1
