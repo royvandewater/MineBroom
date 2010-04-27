@@ -14,3 +14,4 @@ C{ mine(A1,B1) : adjacent(A1,B1,A2,B2) }C :- safe(A2,B2,C).
 
 #hide.
 #show mine/2.
+#show not_a_mine(A1, B1).

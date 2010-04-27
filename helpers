@@ -19,4 +19,4 @@ next_to(N1,N2) :- A = #abs(N1 - N2), A <= 1.
 same(R1,R2,C1,C2) :- R1=R2, C1=C2.
 adjacent(R1,C1,R2,C2) :- next_to(R1,R2), next_to(C1,C2), not same(R1,R2,C1,C2).
 
-not_a_mine(R2, C2) :- safe(R1, C1, N), adjacent(R1,C1,R2,C2), N = 0.
+not_a_mine(R2, C2) :- safe(R1, C1, N1), adjacent(R1,C1,R2,C2), not mine(R2, C2).

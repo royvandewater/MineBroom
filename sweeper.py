@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import os
-import sys
+import commands
 import getopt
+import os
 import random
+import re
+import sys
 import time
 
 import pygtk
@@ -15,6 +17,7 @@ class Sweeper:
         """
         Setup the gtk window
         """
+        self.dead = False
         # Instantiate the minefield
         self.minefield = Minefield(row_count, column_count, mine_count)
 
@@ -168,7 +171,40 @@ class Sweeper:
         c = self.minefield.cols
         n = max(r, c)
         command = "gringo -c r={0} -c c={1} -c n={2} helpers mines input | clasp -n 0".format(r,c,n)
-        print(os.system(command))
+        output = commands.getoutput(command)
+        # The first few lines are not important
+        relevant_output = output.split('\n')[3:]
+        # The second to last line contains the number of models
+        number_of_models = int(relevant_output[-2].split()[-1])
+        models = []
+        for i in range(number_of_models):
+            models.append( relevant_output[(1 + 2*i)].split() )
+
+        # We now have something we can work with, a list of models where each model is a 
+        # list of 'mine' and 'not_a_mine' fields. The only guarenteed answers are those that
+        # are present in every single model so we find the intersection of all the models
+        master_set = set(models[0])
+        for model in models[1:]:
+            master_set = master_set.intersection( set(model) )
+
+        # Now we have a working solution, lets change the board state
+        for square in master_set:
+            if square.startswith("mine"):
+                coord_pair = (square[4:][1:-1]).split(',')
+                row = int(coord_pair[0])
+                col = int(coord_pair[1])
+
+                if not self.minefield.is_flagged(row, col):
+                    self.flag_square(None, row, col)
+            else:
+                coord_pair = (square[10:][1:-1]).split(',')
+                row = int(coord_pair[0])
+                col = int(coord_pair[1])
+                print((row,col))
+                import pdb
+                pdb.set_trace()
+                if not self.minefield.is_uncovered(row, col):
+                    self.uncover(None, row, col)
 
     def square_clicked_event(self, widget, event, data=None):
         """
@@ -179,12 +215,12 @@ class Sweeper:
         elif event.button == 3:
             self.flag_square(widget, data[0], data[1])
 
-        # This is where the solver will interact with the game
-        self.solve()
-
         # Check to see if the game was won, output to console if so
         if self.minefield.won():
             print("A winner is you")
+        elif not self.dead:
+            # This is where the solver will interact with the game if the game is not won or lost
+            self.solve()
 
 
     def square_value_image(self, value):
@@ -217,6 +253,7 @@ class Sweeper:
             coords,value = square
             # If value is negative, user clicked on a mine
             if value < 0:
+                self.last = True
                 print("Mine, you are dead")
 
                 button = self.minelist[coords[0]][coords[1]]
@@ -330,6 +367,12 @@ class Minefield:
             self.board[x][y] = (self.board[x][y][0], 0)
             self.flags = self.flags - 1
             return 0
+
+    def is_flagged(self, x, y):
+        return self.board[x][y][1] == 1
+
+    def is_uncovered(self, x, y):
+        return self.board[x][y][1] == -1
 
     def get_diff(self):
         """
