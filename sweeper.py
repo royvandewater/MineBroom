@@ -12,6 +12,8 @@ pygtk.require('2.0')
 import gtk
 import pango
 
+solve_auto = False
+
 class Sweeper:
     def __init__(self, row_count, column_count, mine_count):
         """
@@ -156,16 +158,22 @@ class Sweeper:
 
 
     def main(self):
-        gtk.main()
+        try:
+            gtk.main()
+        except KeyboardInterrupt:
+            print("Program terminated")
 
     def solve(self):
         """
         Attempts to solve as much of the board as possible using the solver application
         """
+        # raw_input("Press Enter to solve")
+        # Store the current board state so we can compare it later
+        boardstate = self.minefield.serialize()
         # Write the current board out to a file
         cwd = os.getcwd()
         f = open('input', 'w')
-        f.write(self.minefield.serialize())
+        f.write(boardstate)
         f.close()
         r = self.minefield.rows
         c = self.minefield.cols
@@ -200,11 +208,14 @@ class Sweeper:
                 coord_pair = (square[10:][1:-1]).split(',')
                 row = int(coord_pair[0])
                 col = int(coord_pair[1])
-                print((row,col))
-                import pdb
-                pdb.set_trace()
                 if not self.minefield.is_uncovered(row, col):
                     self.uncover(None, row, col)
+
+        # If board state has changed, rerun the solver
+        if boardstate != self.minefield.serialize():
+            self.solve()
+        elif not self.minefield.won():
+            print("Help me, I'm stuck!")
 
     def square_clicked_event(self, widget, event, data=None):
         """
@@ -218,7 +229,7 @@ class Sweeper:
         # Check to see if the game was won, output to console if so
         if self.minefield.won():
             print("A winner is you")
-        elif not self.dead:
+        elif not self.dead and solve_auto:
             # This is where the solver will interact with the game if the game is not won or lost
             self.solve()
 
@@ -253,7 +264,7 @@ class Sweeper:
             coords,value = square
             # If value is negative, user clicked on a mine
             if value < 0:
-                self.last = True
+                self.dead = True
                 print("Mine, you are dead")
 
                 button = self.minelist[coords[0]][coords[1]]
@@ -539,7 +550,7 @@ def get_options():
     values.  It will abort the program if appropriate; for example, if
     an option has a bad argument, or a bad option is given.
     """
-    game_opts = {'rows': 16, 'cols': 16, 'mines': 40, 'debug': 0}
+    game_opts = {'rows': 16, 'cols': 16, 'mines': 40, 'debug': 0, 'solve': False}
     if os.name is 'posix':
         game_opts['paths'] = ['/usr/share/games/pysweeper',
                               '/usr/local/share/games/pysweeper', sys.path[0],
@@ -548,9 +559,9 @@ def get_options():
         game_opts['paths'] = [sys.path[0], '.']
 
     try:
-        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:',
+        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:s',
                                 ['help', 'rows=', 'columns=', 'cols=', 'dir=',
-                                 'mines=', 'version', 'debug'])[0]
+                                 'mines=', 'version', 'debug','solve'])[0]
     except getopt.error:
         show_usage(sys.exc_info()[1])
 
@@ -572,6 +583,9 @@ def get_options():
         elif option in ('-m', '--mines'):
             set_option(game_opts, 'mines', argument)
             set_mines = 1
+        elif option in ('-s', '--solve'):
+            global solve_auto
+            solve_auto = True
         elif option == '--dir':
             argument = os.path.normcase(argument)
             argument = os.path.normpath(argument)
