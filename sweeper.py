@@ -156,10 +156,23 @@ class Sweeper:
         gtk.main()
 
     def solve(self):
-        print self.minefield.serialize()
+        """
+        Attempts to solve as much of the board as possible using the solver application
+        """
+        # Write the current board out to a file
+        cwd = os.getcwd()
+        f = open('input', 'w')
+        f.write(self.minefield.serialize())
+        f.close()
+        r = self.minefield.rows
+        c = self.minefield.cols
+        n = max(r, c)
+        command = "gringo -c r={0} -c c={1} -c n={2} helpers mines input | clasp -n 0".format(r,c,n)
+        print(os.system(command))
 
     def square_clicked_event(self, widget, event, data=None):
         """
+        Gets called on gtk button click
         """
         if event.button == 1:
             self.uncover(widget, data[0], data[1])
