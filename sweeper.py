@@ -179,7 +179,7 @@ class Sweeper:
         r = self.minefield.rows
         c = self.minefield.cols
         n = max(r, c)
-        command = "gringo -c r={0} -c c={1} -c n={2} helpers mines input | clasp -n 0".format(r,c,n)
+        command = "gringo -c r={0} -c c={1} -c n={2} mineBroom input | clasp -n 0".format(r,c,n)
         output = commands.getoutput(command)
         # The first few lines are not important
         relevant_output = output.split('\n')[3:]
