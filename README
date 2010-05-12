@@ -1,6 +1,16 @@
 Sweeper 0.1 -- An implementation of the classic Minesweeper game
 including ASP solver. Code based on pysweeper by Brett Smith
 
+This application requires that Python2.6 and PyGTK be installed. On Debian
+based systems, simply run: 
+
+sudo apt-get install python2.6 python2.6-gtk2
+
+To run the solver, GRINGO and CLASP must be installed and on the system path.
+GRINGO and CLASP can be downloaded from:
+
+http://potassco.sourceforge.net/
+
 Copyright 2010 Roy van de Water <support@royvandewater.com>
 
 This program is free software; you can redistribute it and/or modify it
