@@ -14,6 +14,7 @@ import pango
 
 solve_auto = False
 limit = False
+verbose = False
 
 class Sweeper:
     def __init__(self, row_count, column_count, mine_count):
@@ -176,11 +177,19 @@ class Sweeper:
         f = open('input', 'w')
         f.write(boardstate)
         f.close()
+
+        if(verbose):
+            print(boardstate)
+
         r = self.minefield.rows
         c = self.minefield.cols
         n = max(r, c)
         command = "gringo -c r={0} -c c={1} -c n={2} mineBroom input | clasp -n 0".format(r,c,n)
         output = commands.getoutput(command)
+
+        if(verbose):
+            print(output)
+
         # The first few lines are not important
         relevant_output = output.split('\n')[3:]
         # The second to last line contains the number of models
@@ -219,6 +228,8 @@ class Sweeper:
             self.solve()
         elif not self.minefield.won():
             print("Help me, I'm stuck!")
+        else:
+            print("A winner is you!")
 
     def square_clicked_event(self, widget, event, data=None):
         """
@@ -231,7 +242,7 @@ class Sweeper:
 
         # Check to see if the game was won, output to console if so
         if self.minefield.won():
-            print("A winner is you")
+            print("A winner is you!")
         elif not self.dead and solve_auto:
             # This is where the solver will interact with the game if the game is not won or lost
             self.solve()
@@ -562,9 +573,9 @@ def get_options():
         game_opts['paths'] = [sys.path[0], '.']
 
     try:
-        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:sl',
+        options = getopt.getopt(sys.argv[1:], 'hvdr:c:m:slvp',
                                 ['help', 'rows=', 'columns=', 'cols=', 'dir=',
-                                 'mines=', 'version', 'debug','solve','limit'])[0]
+                                 'mines=', 'version', 'debug','solve','limit','verbose','print'])[0]
     except getopt.error:
         show_usage(sys.exc_info()[1])
 
@@ -592,6 +603,9 @@ def get_options():
         elif option in ('-s', '--solve'):
             global solve_auto
             solve_auto = True
+        elif option in ('-p', '--print'):
+            global verbose
+            verbose = True
         elif option == '--dir':
             argument = os.path.normcase(argument)
             argument = os.path.normpath(argument)
@@ -671,8 +685,11 @@ def show_usage(error = None):
     print "field."
     print "  -m,--mines:          Set the number of mines in the playing",
     print "field."
-    print "  --dir:               Add a directory for finding external data."
-    print "  -d,--debug:          Enable debugging."
+    print "  -s,--solve:          Starts the application in solve mode."
+    print "  -l,--limit:          Limits the solver to prompt for user input",
+    print "after every iteration of the solver"
+    print "  -p,--print:          Prints the serialized board state in ASP form",
+    print "after every user interaction"
     if error is None:
         sys.exit(0)
     else:
