@@ -687,9 +687,9 @@ def show_usage(error = None):
     print "field."
     print "  -s,--solve:          Starts the application in solve mode."
     print "  -l,--limit:          Limits the solver to prompt for user input",
-    print "after every iteration of the solver"
+    print "after every iteration of the solver."
     print "  -p,--print:          Prints the serialized board state in ASP form",
-    print "after every user interaction"
+    print "after every user interaction."
     if error is None:
         sys.exit(0)
     else:

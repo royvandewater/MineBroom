@@ -1,32 +1,32 @@
-	% r is number of rows
+% r is number of rows
 row(0..(r-1)).
 
-	% c is number of columns
+% c is number of columns
 col(0..(c-1)).
 
-	% n is the the value of whichever is greater between cols and rows
+% n is the the value of whichever is greater between cols and rows
 number(0..(n-1)).
 
 #domain row(R1;R2).
 #domain col(C1;C2).
 #domain number(N1;N2).
 
-	% define adjacency
+% define adjacency
 next_to(N1,N2) :- A = #abs(N1 - N2), A <= 1.
 same(R1,R2,C1,C2) :- R1=R2, C1=C2.
 adjacent(R1,C1,R2,C2) :- next_to(R1,R2), next_to(C1,C2), not same(R1,R2,C1,C2).
 
 not_a_mine(R2, C2) :- safe(R1, C1, N1), adjacent(R1,C1,R2,C2), not mine(R2, C2).
 
-	% The idea is to return a list of all previously unknown locations
-	% That we now know to be mines
+% The idea is to return a list of all previously unknown locations
+% That we now know to be mines
 
-	% There cannot be more mines adjacent to a safesquare than the value indicated
-	% choose at most C adjacent mines
+% There cannot be more mines adjacent to a safesquare than the value indicated
+% choose at most C adjacent mines
 C{ mine(A1,B1) : adjacent(A1,B1,A2,B2) }C :- safe(A2,B2,C).
 
-	% define when something is definately not a mine
-	% A safe square is definately not a mine
+% define when something is definately not a mine
+% A safe square is definately not a mine
 :- safe(R1, C1, N), mine(R1, C1).
 
 #hide.
