@@ -1,3 +1,4 @@
+% 4x5 board
 mine(0,0).
 mine(0,1).
 safe(0,2,4).
