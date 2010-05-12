@@ -11,6 +11,15 @@ GRINGO and CLASP can be downloaded from:
 
 http://potassco.sourceforge.net/
 
+To run the solver on any of the test cases provided, use the following command:
+
+gringo -c r=<rnum> -c c=<cnum> -c n=<max> mineBroom <caseFile> | clasp 0
+
+So to run it on case5, you would run
+
+gringo -c r=4 -c c=5 -c n=5 mineBroom case5 | clasp 0
+
+
 Copyright 2010 Roy van de Water <support@royvandewater.com>
 
 This program is free software; you can redistribute it and/or modify it
